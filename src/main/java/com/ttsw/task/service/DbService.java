@@ -1,7 +1,9 @@
 package com.ttsw.task.service;
 
 import com.ttsw.task.domain.AppUser;
+import com.ttsw.task.domain.Token;
 import com.ttsw.task.repository.AppUserRepository;
+import com.ttsw.task.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,25 +14,30 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DbService {
     private final AppUserRepository appUserRepository;
+    private final TokenRepository tokenRepository;
 
-    public AppUser createUser(AppUser appUser){
+    public AppUser saveUser(AppUser appUser){
         return appUserRepository.save(appUser);
     }
 
-    public List<AppUser> getByEmail(String email){
+    public List<AppUser> getUserByEmail(String email){
         return appUserRepository.findByEmail(email);
     }
 
-    public AppUser getByUsername(String username){
+    public AppUser getUserByUsername(String username){
         return appUserRepository.findByUsername(username);
     }
 
-    public Optional<AppUser> getById(Long id){
+    public Optional<AppUser> getUserById(Long id){
         return appUserRepository.findById(id);
     }
 
-    public void deleteById(Long id){
+    public void deleteUserById(Long id){
         appUserRepository.deleteById(id);
     }
+
+    public Token saveToken(Token token){ return tokenRepository.save(token);}
+
+    public Token findTokenByValue(String tokenValue){ return tokenRepository.findByValue(tokenValue);}
 
 }
