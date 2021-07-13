@@ -1,4 +1,4 @@
-package com.ttsw.task.domain;
+package com.ttsw.task.entity;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

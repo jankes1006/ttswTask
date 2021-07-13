@@ -1,4 +1,4 @@
-package com.ttsw.task.controller;
+package com.ttsw.task.exception;
 
 public class BadIdUserException extends Exception{
 }

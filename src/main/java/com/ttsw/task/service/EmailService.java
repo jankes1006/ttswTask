@@ -1,8 +1,8 @@
 package com.ttsw.task.service;
 
-import com.ttsw.task.domain.AppUser;
+import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.domain.Mail;
-import com.ttsw.task.domain.Token;
+import com.ttsw.task.entity.Token;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

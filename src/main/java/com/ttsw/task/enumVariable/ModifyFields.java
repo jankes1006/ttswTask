@@ -1,4 +1,4 @@
-package com.ttsw.task.controller;
+package com.ttsw.task.enumVariable;
 
 public enum ModifyFields {
     PASSWORD,EMAIL,ROLE

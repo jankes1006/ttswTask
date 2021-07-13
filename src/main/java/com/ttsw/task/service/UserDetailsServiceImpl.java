@@ -13,6 +13,6 @@ public class UserDetailsServiceImpl implements UserDetailsService{
     private final AppUserRepository appUserRepository;
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
-        return appUserRepository.findByUsername(username);
+        return appUserRepository.findByUsername(username).get();
     }
 }

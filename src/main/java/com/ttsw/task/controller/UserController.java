@@ -1,6 +1,11 @@
 package com.ttsw.task.controller;
 
 import com.ttsw.task.domain.*;
+import com.ttsw.task.entity.AppUser;
+import com.ttsw.task.entity.Token;
+import com.ttsw.task.enumVariable.ModifyFields;
+import com.ttsw.task.exception.BadIdUserException;
+import com.ttsw.task.exception.BadUsernameException;
 import com.ttsw.task.mapper.AppUserMapper;
 import com.ttsw.task.service.DbService;
 import com.ttsw.task.service.EmailService;
@@ -9,25 +14,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
-@RequestMapping("/v1/ttswTask")
+@RequestMapping("/user")
 @RestController
 public class UserController {
+    private final AppUserMapper appUserMapper;
     private final DbService dbService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     public AppUser prepareNewUser(AppUserRegisterDTO appUserRegisterDTO){
-        AppUser appUser = AppUserMapper.INSTANCE.mapToAppUser(appUserRegisterDTO);
+        AppUser appUser = appUserMapper.mapToAppUser(appUserRegisterDTO);
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         appUser.setRole("ROLE_USER");
         appUser.setEnabled(false);
         return appUser;
     }
 
-    @PostMapping("/createUser")
+    @PostMapping("/create")
     public AppUserToSendDTO createUser(@RequestBody AppUserRegisterDTO appUserRegisterDTO){
         AppUser appUser = prepareNewUser(appUserRegisterDTO);
         appUser=dbService.saveUser(appUser);
@@ -37,27 +42,22 @@ public class UserController {
 
         emailService.sendEmailToVerify(appUser,token);
 
-        return AppUserMapper.INSTANCE.mapToAppUserToSendDTO(appUser);
+        return appUserMapper.mapToAppUserToSendDTO(appUser);
     }
 
-    @GetMapping("/getUserByEmail")
-    public List<AppUser> getUsersByEmail(@RequestParam String email){
-        return dbService.getUserByEmail(email);
+    @GetMapping("/getByEmail")
+    public List<AppUserToSendDTO> getUsersByEmail(@RequestParam String email){
+        return appUserMapper.mapToAppUserSendDTOList(dbService.getUserByEmail(email));
     }
 
-    @GetMapping("/getUserByUsername")
-    public AppUser getUserByUsername(@RequestParam String username){
-        return dbService.getUserByUsername(username);
+    @GetMapping("/getByUsername")
+    public AppUserToSendDTO getUserByUsername(@RequestParam String username) throws BadUsernameException {
+        return appUserMapper.mapToAppUserToSendDTO(dbService.getUserByUsername(username).orElseThrow(BadUsernameException::new));
     }
 
-    @PutMapping("/updateUser")
-    public AppUser updateUser(@RequestParam Long id, String value, ModifyFields MODIFY_FIELDS) throws BadIdUserException{
-
-        Optional<AppUser> optionalAppUser = dbService.getUserById(id);
-        if(!optionalAppUser.isPresent()){ //czy w ten sposob to rozwiazac?
-            throw new BadIdUserException();
-        }
-        AppUser appUser=optionalAppUser.get();
+    @PutMapping("/update")
+    public AppUserToSendDTO updateUser(@RequestParam Long id, String value, ModifyFields MODIFY_FIELDS) throws BadIdUserException {
+        AppUser appUser = dbService.getUserById(id).orElseThrow(BadIdUserException::new);
 
         switch (MODIFY_FIELDS) {
             case EMAIL:
@@ -71,20 +71,21 @@ public class UserController {
             case ROLE:
                 appUser.setRole(value);
         }
-        return dbService.saveUser(appUser);
+        return appUserMapper.mapToAppUserToSendDTO(dbService.saveUser(appUser));
     }
 
-    @DeleteMapping("/deleteUser")
+    @DeleteMapping("/delete")
     public void deleteUser(@RequestParam Long id){
         dbService.deleteUserById(id);
     }
 
-    @GetMapping("/verifyAccount")
+    @GetMapping("/verify")
     public void verifyAccount(@RequestParam String tokenValue){
         Token token = dbService.findTokenByValue(tokenValue);
         AppUser appUser = token.getAppUser();
         appUser.setEnabled(true);
         dbService.saveUser(appUser);
+        dbService.deleteToken(token);
         emailService.sendEmailThatVerifyIsCorrect(appUser);
     }
 

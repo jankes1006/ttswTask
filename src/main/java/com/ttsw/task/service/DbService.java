@@ -1,7 +1,7 @@
 package com.ttsw.task.service;
 
-import com.ttsw.task.domain.AppUser;
-import com.ttsw.task.domain.Token;
+import com.ttsw.task.entity.AppUser;
+import com.ttsw.task.entity.Token;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class DbService {
         return appUserRepository.findByEmail(email);
     }
 
-    public AppUser getUserByUsername(String username){
+    public Optional<AppUser> getUserByUsername(String username){
         return appUserRepository.findByUsername(username);
     }
 
@@ -39,5 +39,9 @@ public class DbService {
     public Token saveToken(Token token){ return tokenRepository.save(token);}
 
     public Token findTokenByValue(String tokenValue){ return tokenRepository.findByValue(tokenValue);}
+
+    public void deleteToken(Token token){
+        tokenRepository.delete(token);
+    }
 
 }
