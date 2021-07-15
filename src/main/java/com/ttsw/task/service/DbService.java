@@ -1,8 +1,10 @@
 package com.ttsw.task.service;
 
 import com.ttsw.task.entity.AppUser;
+import com.ttsw.task.entity.Offer;
 import com.ttsw.task.entity.Token;
 import com.ttsw.task.repository.AppUserRepository;
+import com.ttsw.task.repository.OfferRepository;
 import com.ttsw.task.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class DbService {
     private final AppUserRepository appUserRepository;
     private final TokenRepository tokenRepository;
+    private final OfferRepository offerRepository;
 
     public AppUser saveUser(AppUser appUser){
         return appUserRepository.save(appUser);
@@ -36,6 +39,8 @@ public class DbService {
         appUserRepository.deleteById(id);
     }
 
+
+
     public Token saveToken(Token token){ return tokenRepository.save(token);}
 
     public Token findTokenByValue(String tokenValue){ return tokenRepository.findByValue(tokenValue);}
@@ -44,4 +49,9 @@ public class DbService {
         tokenRepository.delete(token);
     }
 
+
+    public Offer saveOffer(Offer offer){
+        return offerRepository.save(offer);
+    }
+    public List<Offer> getAllOffer(){return (List<Offer>) offerRepository.findAll();}
 }

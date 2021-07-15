@@ -35,7 +35,7 @@ public class EmailService {
     }
 
     private String prepareTokenUrl(Token token){
-        String url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/v1/ttswTask/verifyAccount")
+        String url = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/user/verifyAccount")
                 .queryParam("tokenValue",token.getValue()).build().toString();
         return url;
     }

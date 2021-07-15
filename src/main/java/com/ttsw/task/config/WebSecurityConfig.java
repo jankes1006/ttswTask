@@ -28,11 +28,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.headers().disable();
+
         http.authorizeRequests()
-                .antMatchers("/v1/ttswTask/sayHello").permitAll()
-                .antMatchers("/v1/ttswTask/sayHello2").authenticated()
+                .antMatchers("/user").permitAll()
+                .antMatchers("/offer").authenticated()
                 .and()
-                .formLogin().defaultSuccessUrl("/v1/ttswTask/sayHello2");
+                .httpBasic();
     }
 }

@@ -1,12 +1,13 @@
 package com.ttsw.task.controller;
 
-import com.ttsw.task.domain.*;
+import com.ttsw.task.domain.user.AppUserRegisterDTO;
+import com.ttsw.task.domain.user.AppUserToSendDTO;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Token;
-import com.ttsw.task.enumVariable.ModifyFields;
-import com.ttsw.task.exception.BadIdUserException;
-import com.ttsw.task.exception.BadUsernameException;
-import com.ttsw.task.mapper.AppUserMapper;
+import com.ttsw.task.enumVariable.user.ModifyFields;
+import com.ttsw.task.exception.user.BadIdUserException;
+import com.ttsw.task.exception.user.BadUsernameException;
+import com.ttsw.task.mapper.user.AppUserMapper;
 import com.ttsw.task.service.DbService;
 import com.ttsw.task.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public AppUser prepareNewUser(AppUserRegisterDTO appUserRegisterDTO){
+    private AppUser prepareNewUser(AppUserRegisterDTO appUserRegisterDTO){
         AppUser appUser = appUserMapper.mapToAppUser(appUserRegisterDTO);
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         appUser.setRole("ROLE_USER");
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public AppUserToSendDTO createUser(@RequestBody AppUserRegisterDTO appUserRegisterDTO){
+    public AppUserToSendDTO create(@RequestBody AppUserRegisterDTO appUserRegisterDTO){
         AppUser appUser = prepareNewUser(appUserRegisterDTO);
         appUser=dbService.saveUser(appUser);
 
@@ -45,18 +46,29 @@ public class UserController {
         return appUserMapper.mapToAppUserToSendDTO(appUser);
     }
 
+    @GetMapping("/login")
+    public AppUserToSendDTO login(@RequestParam String username, String password){
+        AppUser appUser = dbService.getUserByUsername(username).orElseGet(AppUser::new);
+        if(passwordEncoder.matches(password,appUser.getPassword())){
+            return appUserMapper.mapToAppUserToSendDTO(appUser);
+        }else
+        {
+            return new AppUserToSendDTO();
+        }
+    }
+
     @GetMapping("/getByEmail")
-    public List<AppUserToSendDTO> getUsersByEmail(@RequestParam String email){
+    public List<AppUserToSendDTO> getByEmail(@RequestParam String email){
         return appUserMapper.mapToAppUserSendDTOList(dbService.getUserByEmail(email));
     }
 
     @GetMapping("/getByUsername")
-    public AppUserToSendDTO getUserByUsername(@RequestParam String username) throws BadUsernameException {
+    public AppUserToSendDTO getByUsername(@RequestParam String username) throws BadUsernameException {
         return appUserMapper.mapToAppUserToSendDTO(dbService.getUserByUsername(username).orElseThrow(BadUsernameException::new));
     }
 
     @PutMapping("/update")
-    public AppUserToSendDTO updateUser(@RequestParam Long id, String value, ModifyFields MODIFY_FIELDS) throws BadIdUserException {
+    public AppUserToSendDTO update(@RequestParam Long id, String value, ModifyFields MODIFY_FIELDS) throws BadIdUserException {
         AppUser appUser = dbService.getUserById(id).orElseThrow(BadIdUserException::new);
 
         switch (MODIFY_FIELDS) {
@@ -75,11 +87,11 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public void deleteUser(@RequestParam Long id){
+    public void delete(@RequestParam Long id){
         dbService.deleteUserById(id);
     }
 
-    @GetMapping("/verify")
+    @GetMapping("/verifyAccount")
     public void verifyAccount(@RequestParam String tokenValue){
         Token token = dbService.findTokenByValue(tokenValue);
         AppUser appUser = token.getAppUser();
@@ -87,15 +99,5 @@ public class UserController {
         dbService.saveUser(appUser);
         dbService.deleteToken(token);
         emailService.sendEmailThatVerifyIsCorrect(appUser);
-    }
-
-    @GetMapping("/sayHello")
-    public String hello(){
-        return "HELLO";
-    }
-
-    @GetMapping("/sayHello2")
-    public String hello2(){
-        return "HELLO2";
     }
 }
