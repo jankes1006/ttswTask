@@ -15,5 +15,5 @@ public class OfferDTO {
     private String title;
     private String description;
     private BigDecimal price;
-    private String userId;
+    private String ownerName;
 }

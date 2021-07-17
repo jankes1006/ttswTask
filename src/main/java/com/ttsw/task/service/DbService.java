@@ -53,5 +53,10 @@ public class DbService {
     public Offer saveOffer(Offer offer){
         return offerRepository.save(offer);
     }
+
     public List<Offer> getAllOffer(){return (List<Offer>) offerRepository.findAll();}
+
+    public Optional<Offer> getOfferById(Long id){
+        return offerRepository.findById(id);
+    }
 }
