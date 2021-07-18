@@ -17,9 +17,9 @@ public class Token {
     @OneToOne
     private AppUser appUser;
 
-    public Token(AppUser appUser){
-        this.value= UUID.randomUUID().toString();
-        this.appUser=appUser;
+    public Token(AppUser appUser) {
+        this.value = UUID.randomUUID().toString();
+        this.appUser = appUser;
     }
 
     @Override

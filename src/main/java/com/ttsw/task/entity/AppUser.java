@@ -33,7 +33,7 @@ public class AppUser implements UserDetails {
     )
     private List<Offer> userOffers = new ArrayList<>();
 
-    
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority(role));
@@ -57,17 +57,6 @@ public class AppUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return isEnabled;
-    }
-
-    @Override
-    public String toString() {
-        return "AppUser{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", role='" + role + '\'' +
-                '}';
     }
 
 }

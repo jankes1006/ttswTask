@@ -4,8 +4,10 @@ import com.ttsw.task.domain.user.AppUserRegisterDTO;
 import com.ttsw.task.domain.user.AppUserToSendDTO;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Token;
+import com.ttsw.task.enumVariable.user.CreateAccountResult;
 import com.ttsw.task.enumVariable.user.ModifyFields;
 import com.ttsw.task.exception.user.BadIdUserException;
+import com.ttsw.task.exception.user.BadLoginProcess;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.user.AppUserMapper;
 import com.ttsw.task.service.DbService;
@@ -25,7 +27,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    private AppUser prepareNewUser(AppUserRegisterDTO appUserRegisterDTO){
+    private AppUser prepareNewUser(AppUserRegisterDTO appUserRegisterDTO) {
         AppUser appUser = appUserMapper.mapToAppUser(appUserRegisterDTO);
         appUser.setPassword(passwordEncoder.encode(appUser.getPassword()));
         appUser.setRole("ROLE_USER");
@@ -34,31 +36,37 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public AppUserToSendDTO create(@RequestBody AppUserRegisterDTO appUserRegisterDTO){
+    public CreateAccountResult create(@RequestBody AppUserRegisterDTO appUserRegisterDTO) {
         AppUser appUser = prepareNewUser(appUserRegisterDTO);
-        appUser=dbService.saveUser(appUser);
 
+        if (dbService.getUserByEmail(appUser.getEmail()).size() > 0) {
+            return CreateAccountResult.MAIL_EXIST;
+        }
+        if (dbService.getUserByUsername(appUser.getUsername()).isPresent()) {
+            return CreateAccountResult.USERNAME_EXIST;
+        }
+
+        appUser = dbService.saveUser(appUser);
         Token token = new Token(appUser);
         dbService.saveToken(token);
 
-        emailService.sendEmailToVerify(appUser,token);
+        emailService.sendEmailToVerify(appUser, token);
 
-        return appUserMapper.mapToAppUserToSendDTO(appUser);
+        return CreateAccountResult.CREATE;
     }
 
     @GetMapping("/login")
-    public AppUserToSendDTO login(@RequestParam String username, String password){
-        AppUser appUser = dbService.getUserByUsername(username).orElseGet(AppUser::new);
-        if(passwordEncoder.matches(password,appUser.getPassword())){
+    public AppUserToSendDTO login(@RequestParam String username, String password) throws BadLoginProcess {
+        AppUser appUser = dbService.getUserByUsername(username).orElseThrow(BadLoginProcess::new);
+        if (passwordEncoder.matches(password, appUser.getPassword())) {
             return appUserMapper.mapToAppUserToSendDTO(appUser);
-        }else
-        {
-            return new AppUserToSendDTO();
+        } else {
+            throw new BadLoginProcess();
         }
     }
 
     @GetMapping("/getByEmail")
-    public List<AppUserToSendDTO> getByEmail(@RequestParam String email){
+    public List<AppUserToSendDTO> getByEmail(@RequestParam String email) {
         return appUserMapper.mapToAppUserSendDTOList(dbService.getUserByEmail(email));
     }
 
@@ -87,12 +95,12 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public void delete(@RequestParam Long id){
+    public void delete(@RequestParam Long id) {
         dbService.deleteUserById(id);
     }
 
     @GetMapping("/verifyAccount")
-    public void verifyAccount(@RequestParam String tokenValue){
+    public void verifyAccount(@RequestParam String tokenValue) {
         Token token = dbService.findTokenByValue(tokenValue);
         AppUser appUser = token.getAppUser();
         appUser.setEnabled(true);

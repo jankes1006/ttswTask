@@ -19,44 +19,49 @@ public class DbService {
     private final TokenRepository tokenRepository;
     private final OfferRepository offerRepository;
 
-    public AppUser saveUser(AppUser appUser){
+    public AppUser saveUser(AppUser appUser) {
         return appUserRepository.save(appUser);
     }
 
-    public List<AppUser> getUserByEmail(String email){
+    public List<AppUser> getUserByEmail(String email) {
         return appUserRepository.findByEmail(email);
     }
 
-    public Optional<AppUser> getUserByUsername(String username){
+    public Optional<AppUser> getUserByUsername(String username) {
         return appUserRepository.findByUsername(username);
     }
 
-    public Optional<AppUser> getUserById(Long id){
+    public Optional<AppUser> getUserById(Long id) {
         return appUserRepository.findById(id);
     }
 
-    public void deleteUserById(Long id){
+    public void deleteUserById(Long id) {
         appUserRepository.deleteById(id);
     }
 
 
+    public Token saveToken(Token token) {
+        return tokenRepository.save(token);
+    }
 
-    public Token saveToken(Token token){ return tokenRepository.save(token);}
+    public Token findTokenByValue(String tokenValue) {
+        return tokenRepository.findByValue(tokenValue);
+    }
 
-    public Token findTokenByValue(String tokenValue){ return tokenRepository.findByValue(tokenValue);}
-
-    public void deleteToken(Token token){
+    public void deleteToken(Token token) {
         tokenRepository.delete(token);
     }
 
 
-    public Offer saveOffer(Offer offer){
+    public Offer saveOffer(Offer offer) {
         return offerRepository.save(offer);
     }
 
-    public List<Offer> getAllOffer(){return (List<Offer>) offerRepository.findAll();}
+    public List<Offer> getAllOffer() {
+        return (List<Offer>) offerRepository.findAll();
+    }
 
-    public Optional<Offer> getOfferById(Long id){
+    public Optional<Offer> getOfferById(Long id) {
         return offerRepository.findById(id);
     }
 }

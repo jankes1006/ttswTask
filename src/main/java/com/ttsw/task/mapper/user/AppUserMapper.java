@@ -10,6 +10,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AppUserMapper {
     AppUser mapToAppUser(AppUserRegisterDTO appUserRegisterDTO);
+
     AppUserToSendDTO mapToAppUserToSendDTO(AppUser appUser);
+
     List<AppUserToSendDTO> mapToAppUserSendDTOList(List<AppUser> appUsers);
 }
