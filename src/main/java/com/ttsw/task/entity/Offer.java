@@ -25,5 +25,3 @@ public class Offer {
     @JoinColumn(name = "OWNER_ID")
     private AppUser owner;
 }
-
-//branche

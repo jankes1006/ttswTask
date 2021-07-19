@@ -19,4 +19,6 @@ public interface OfferMapper {
     OfferDTO mapToOfferDTO(Offer offer);
 
     List<OfferDTO> mapToOffersDTO(List<Offer> offers);
+
+    Offer mapOfferDTOtoOffer(OfferDTO offerDTO);
 }

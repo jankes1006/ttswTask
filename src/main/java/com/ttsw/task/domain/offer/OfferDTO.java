@@ -1,9 +1,9 @@
 package com.ttsw.task.domain.offer;
 
+import com.ttsw.task.enumVariable.offer.StateOffer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -15,5 +15,6 @@ public class OfferDTO {
     private String title;
     private String description;
     private BigDecimal price;
+    private StateOffer stateOffer;
     private String ownerName;
 }
