@@ -9,6 +9,8 @@ public class AppUserRegisterDTO {
     private String username;
     private String password;
     private String email;
+    private boolean enabled;
+    private String role;
 
     @Override
     public String toString() {
