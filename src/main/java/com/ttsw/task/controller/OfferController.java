@@ -1,5 +1,6 @@
 package com.ttsw.task.controller;
 
+import com.ttsw.task.domain.offer.BanOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
 import com.ttsw.task.exception.offer.BadEditOfferException;
@@ -42,6 +43,21 @@ public class OfferController {
     @GetMapping("/getAll")
     public List<OfferDTO> getAll() {
         return offerService.getAll();
+    }
+
+    @GetMapping("/getAllAdmin")
+    public List<OfferDTO> getAllAdmin() {
+        return offerService.getAllAdmin();
+    }
+
+    @PutMapping("/setBan")
+    public OfferDTO setBanOnOffer(@RequestBody BanOfferDTO banOfferDTO, Principal principal) throws BadIdOfferException, BadUsernameException {
+        return offerService.setBanOnOffer(banOfferDTO.getId(), banOfferDTO.getReason(), principal);
+    }
+
+    @PutMapping("/takeOffBan")
+    public OfferDTO takeOffBanOffer(@RequestBody BanOfferDTO banOfferDTO) throws BadIdOfferException {
+        return offerService.takeOffBan(banOfferDTO.getId());
     }
 
     @GetMapping("/getById")

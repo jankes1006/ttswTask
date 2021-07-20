@@ -108,4 +108,26 @@ public class OfferService {
         }
         return false;
     }
+
+    public List<OfferDTO> getAllAdmin() {
+        List<Offer> offers = (List<Offer>) offerRepository.findAll();
+        return offerMapper.mapToOffersDTO(offers);
+    }
+
+    public OfferDTO setBanOnOffer(Long id, String reason, Principal principal) throws BadIdOfferException, BadUsernameException {
+        AppUser admin = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
+        Offer offer = offerRepository.findById(id).orElseThrow(BadIdOfferException::new);
+        offer.setStateOffer(StateOffer.BANNED);
+        offerRepository.save(offer);
+        emailService.sendEmailToSellerThatOfferIsBlocked(admin, offer.getOwner(), offer, reason);
+        return offerMapper.mapToOfferDTO(offer);
+    }
+
+    public OfferDTO takeOffBan(Long id) throws BadIdOfferException {
+        Offer offer = offerRepository.findById(id).orElseThrow(BadIdOfferException::new);
+        offer.setStateOffer(StateOffer.NO_ACTIVE);
+        offerRepository.save(offer);
+        emailService.sendEmailToSellerThatOfferIsUnBlock(offer.getOwner(), offer);
+        return offerMapper.mapToOfferDTO(offer);
+    }
 }

@@ -1,7 +1,7 @@
 package com.ttsw.task.service;
 
-import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.domain.Mail;
+import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.entity.Token;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +62,22 @@ public class EmailService {
                         "\n Zarezerwowano Twoją oferte o nazwie: \"" + offer.getTitle() + "\"." +
                         "\n W celu uzgodnienia warunkow sprzedazy skontaktuj sie z kupujacym, pod adresem: " +
                         client.getEmail());
+        sendMail(mail);
+    }
+
+    public void sendEmailToSellerThatOfferIsBlocked(AppUser admin, AppUser seller, Offer offer, String reason) {
+        Mail mail = new Mail(seller.getEmail(), "Zablokowano oferte: " + offer.getTitle(),
+                "Cześć " + seller.getUsername() +
+                        "\n Zablokowano twoją ofertę o nazwie: \"" + offer.getTitle() + "\"." +
+                        "\n Powodem było \"" + reason + "\"" +
+                        "\n Jeżeli nie zgadzasz się z powodem, skontaktuj się z: " + admin.getEmail());
+        sendMail(mail);
+    }
+
+    public void sendEmailToSellerThatOfferIsUnBlock(AppUser seller, Offer offer) {
+        Mail mail = new Mail(seller.getEmail(), "Odblokowano oferte: " + offer.getTitle(),
+                "Cześć " + seller.getUsername() +
+                        "\n Właśnie odblokowano Twoją ofertę o nazwie \"" + offer.getTitle() + "\"");
         sendMail(mail);
     }
 }
