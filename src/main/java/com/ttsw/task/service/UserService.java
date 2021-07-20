@@ -2,10 +2,12 @@ package com.ttsw.task.service;
 
 import com.ttsw.task.domain.user.AppUserRegisterDTO;
 import com.ttsw.task.domain.user.AppUserToSendDTO;
+import com.ttsw.task.domain.user.AppUserUpdateAdminDTO;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Token;
 import com.ttsw.task.enumVariable.user.CreateAccountResult;
 import com.ttsw.task.enumVariable.user.ModifyFields;
+import com.ttsw.task.exception.user.BadIdUserException;
 import com.ttsw.task.exception.user.BadLoginProcess;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.user.AppUserMapper;
@@ -70,7 +72,6 @@ public class UserService {
 
     public AppUserToSendDTO update(String value, ModifyFields MODIFY_FIELDS, Principal principal) throws BadUsernameException {
         AppUser appUser = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
-
         switch (MODIFY_FIELDS) {
             case EMAIL:
                 appUser.setEmail(value);
@@ -79,9 +80,6 @@ public class UserService {
             case PASSWORD:
                 appUser.setPassword(passwordEncoder.encode(value));
                 break;
-
-            case ROLE:
-                appUser.setRole(value);
         }
         return appUserMapper.mapToAppUserToSendDTO(appUserRepository.save(appUser));
     }
@@ -96,5 +94,19 @@ public class UserService {
 
     public void delete(Long id) {
         appUserRepository.deleteById(id);
+    }
+
+    public List<AppUserToSendDTO> getAllUsers() {
+        return appUserMapper.mapToAppUserSendDTOList((List<AppUser>) appUserRepository.findAll());
+    }
+
+    public AppUserToSendDTO getById(Long id) throws BadIdUserException {
+        return appUserMapper.mapToAppUserToSendDTO(appUserRepository.findById(id).orElseThrow(BadIdUserException::new));
+    }
+
+    public AppUserToSendDTO update(AppUserUpdateAdminDTO appUserUpdateAdminDTO) throws BadIdUserException {
+        AppUser appUser = appUserRepository.findById(appUserUpdateAdminDTO.getId()).orElseThrow(BadIdUserException::new);
+        appUser.setRole(appUserUpdateAdminDTO.getRole());
+        return appUserMapper.mapToAppUserToSendDTO(appUserRepository.save(appUser));
     }
 }
