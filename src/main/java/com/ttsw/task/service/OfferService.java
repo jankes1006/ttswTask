@@ -3,19 +3,27 @@ package com.ttsw.task.service;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
 import com.ttsw.task.entity.AppUser;
+import com.ttsw.task.entity.Category;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.enumVariable.offer.StateOffer;
+import com.ttsw.task.exception.category.BadIdCategoryException;
+import com.ttsw.task.exception.category.BadNameCategoryException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.offer.OfferMapper;
 import com.ttsw.task.repository.AppUserRepository;
+import com.ttsw.task.repository.CategoryRepository;
 import com.ttsw.task.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,14 +32,18 @@ import java.util.stream.Collectors;
 public class OfferService {
     private final OfferRepository offerRepository;
     private final AppUserRepository appUserRepository;
+    private final CategoryRepository categoryRepository;
     private final OfferMapper offerMapper;
     private final EmailService emailService;
 
-    public OfferDTO create(CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException {
+    public OfferDTO create(CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         AppUser owner = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
+        Category category = categoryRepository.findById(createOfferDTO.getCategory()).orElseThrow(BadIdCategoryException::new);
         Offer offer = offerMapper.mapToOffer(createOfferDTO);
         owner.getUserOffers().add(offer);
+        category.getOffers().add(offer);
         offer.setOwner(owner);
+        offer.setCategory(category);
         offer.setStateOffer(StateOffer.ACTIVE);
         return offerMapper.mapToOfferDTO(offerRepository.save(offer));
     }
@@ -86,6 +98,17 @@ public class OfferService {
         );
     }
 
+    public int sizeActiveOffer(String category) throws BadNameCategoryException {
+        if (category.equals("all")) {
+            return getAll().size();
+        } else {
+            Category helperCategory = categoryRepository.findByName(category).orElseThrow(BadNameCategoryException::new);
+            List<Offer> offers = helperCategory.getOffers();
+            return (int) offers.stream().filter(offer -> offer.getStateOffer().equals(StateOffer.ACTIVE)).count();
+        }
+
+    }
+
     public OfferDTO getById(Long id) throws BadIdOfferException {
         return offerMapper.mapToOfferDTO(offerRepository.findById(id).orElseThrow(BadIdOfferException::new));
     }
@@ -129,5 +152,26 @@ public class OfferService {
         offerRepository.save(offer);
         emailService.sendEmailToSellerThatOfferIsUnBlock(offer.getOwner(), offer);
         return offerMapper.mapToOfferDTO(offer);
+    }
+
+    public List<OfferDTO> getPaginationOffers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Offer> page1 = offerRepository.findAll(pageable);
+
+        List<Offer> result = new ArrayList<>();
+        result.addAll(page1.getContent());
+        return offerMapper.mapToOffersDTO(result);
+    }
+
+    public List<OfferDTO> getPaginationOffersWhereCategory(int page, int size, String category) throws BadNameCategoryException {
+        if (category == null || category.equals("all")) return getPaginationOffers(page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Category categoryFound = categoryRepository.findByName(category).orElseThrow(BadNameCategoryException::new);
+
+        Page<Offer> offerPage = offerRepository.findAllByCategory(categoryFound, pageable);
+        List<Offer> result = new ArrayList<>();
+        result.addAll(offerPage.getContent());
+        return offerMapper.mapToOffersDTO(result);
     }
 }

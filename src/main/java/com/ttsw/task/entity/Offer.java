@@ -24,4 +24,8 @@ public class Offer {
     @ManyToOne
     @JoinColumn(name = "OWNER_ID")
     private AppUser owner;
+
+    @ManyToOne
+    @JoinColumn(name = "CATEGORY")
+    private Category category;
 }

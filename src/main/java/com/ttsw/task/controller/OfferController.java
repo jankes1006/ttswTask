@@ -3,6 +3,8 @@ package com.ttsw.task.controller;
 import com.ttsw.task.domain.offer.BanOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
+import com.ttsw.task.exception.category.BadIdCategoryException;
+import com.ttsw.task.exception.category.BadNameCategoryException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
@@ -21,7 +23,7 @@ public class OfferController {
     private final OfferService offerService;
 
     @PostMapping("/create")
-    public OfferDTO create(@RequestBody CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException {
+    public OfferDTO create(@RequestBody CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         return offerService.create(createOfferDTO, principal);
     }
 
@@ -70,4 +72,18 @@ public class OfferController {
         return offerService.reserved(id, principal);
     }
 
+    @GetMapping("/paginationALlOffer")
+    public List<OfferDTO> getPaginationOffers(@RequestParam int page, int size) {
+        return offerService.getPaginationOffers(page, size);
+    }
+
+    @GetMapping("/getSizeActive")
+    public int getSizeActiveOffers(@RequestParam String category) throws BadNameCategoryException {
+        return offerService.sizeActiveOffer(category);
+    }
+
+    @GetMapping("/paginationOfferWhereCategory")
+    public List<OfferDTO> getPaginationOffersWhereCategory(@RequestParam int page, int sizePage, String category) throws BadNameCategoryException {
+        return offerService.getPaginationOffersWhereCategory(page, sizePage, category);
+    }
 }
