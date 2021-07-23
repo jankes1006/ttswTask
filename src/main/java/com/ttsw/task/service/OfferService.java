@@ -18,12 +18,11 @@ import com.ttsw.task.repository.CategoryRepository;
 import com.ttsw.task.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -154,24 +153,11 @@ public class OfferService {
         return offerMapper.mapToOfferDTO(offer);
     }
 
-    public List<OfferDTO> getPaginationOffers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Offer> page1 = offerRepository.findAll(pageable);
-
-        List<Offer> result = new ArrayList<>();
-        result.addAll(page1.getContent());
-        return offerMapper.mapToOffersDTO(result);
+    public Page<OfferDTO> searchTitle(Specification<Offer> spec, Pageable pageable) {
+        return offerRepository.findAll(spec, pageable).map(offerMapper::mapToOfferDTO);
     }
 
-    public List<OfferDTO> getPaginationOffersWhereCategory(int page, int size, String category) throws BadNameCategoryException {
-        if (category == null || category.equals("all")) return getPaginationOffers(page, size);
-
-        Pageable pageable = PageRequest.of(page, size);
-        Category categoryFound = categoryRepository.findByName(category).orElseThrow(BadNameCategoryException::new);
-
-        Page<Offer> offerPage = offerRepository.findAllByCategory(categoryFound, pageable);
-        List<Offer> result = new ArrayList<>();
-        result.addAll(offerPage.getContent());
-        return offerMapper.mapToOffersDTO(result);
+    public Page<OfferDTO> searchTitleAdmin(Specification<Offer> spec, Pageable pageable) {
+        return offerRepository.findAll(spec, pageable).map(offerMapper::mapToOfferDTO);
     }
 }

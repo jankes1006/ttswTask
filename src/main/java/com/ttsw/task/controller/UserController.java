@@ -4,12 +4,19 @@ import com.ttsw.task.domain.user.AppUserRegisterDTO;
 import com.ttsw.task.domain.user.AppUserToSendDTO;
 import com.ttsw.task.domain.user.AppUserUpdateAdminDTO;
 import com.ttsw.task.domain.user.AppUserUpdateUserDTO;
+import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.enumVariable.user.CreateAccountResult;
 import com.ttsw.task.exception.user.BadIdUserException;
 import com.ttsw.task.exception.user.BadLoginProcess;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.service.UserService;
 import lombok.RequiredArgsConstructor;
+import net.kaczmarzyk.spring.data.jpa.domain.Like;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -64,6 +71,16 @@ public class UserController {
     @GetMapping("/verifyAccount")
     public void verifyAccount(@RequestParam String tokenValue) {
         userService.verifyToken(tokenValue);
+    }
+
+    @GetMapping(value = "/getPageable", params = {"page", "size", "username", "email", "role"})
+    public Page<AppUserToSendDTO> getPageableUsers(
+            @And({
+                    @Spec(path = "username", params = "username", spec = Like.class),
+                    @Spec(path = "email", params = "email", spec = Like.class),
+                    @Spec(path = "role", params = "role", spec = Like.class)
+            }) Specification<AppUser> spec, Pageable pageable) {
+        return userService.searchUser(spec, pageable);
     }
 
     @GetMapping("/getAll")

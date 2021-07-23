@@ -14,6 +14,9 @@ import com.ttsw.task.mapper.user.AppUserMapper;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -108,5 +111,9 @@ public class UserService {
         AppUser appUser = appUserRepository.findById(appUserUpdateAdminDTO.getId()).orElseThrow(BadIdUserException::new);
         appUser.setRole(appUserUpdateAdminDTO.getRole());
         return appUserMapper.mapToAppUserToSendDTO(appUserRepository.save(appUser));
+    }
+
+    public Page<AppUserToSendDTO> searchUser(Specification<AppUser> spec, Pageable pageable) {
+        return appUserRepository.findAll(spec, pageable).map(appUserMapper::mapToAppUserToSendDTO);
     }
 }

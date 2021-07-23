@@ -43,7 +43,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/delete").hasRole("ADMIN")
                 .antMatchers("/user/verifyAccount").permitAll()
                 .antMatchers("user/getAll").fullyAuthenticated()
-                .antMatchers("/offer/*").fullyAuthenticated()
+                .antMatchers("user/getPageable").permitAll()
+                //.antMatchers("/offer/*").fullyAuthenticated()
                 .and()
                 .httpBasic();
     }

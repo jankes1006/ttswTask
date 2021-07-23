@@ -3,14 +3,24 @@ package com.ttsw.task.controller;
 import com.ttsw.task.domain.offer.BanOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
+import com.ttsw.task.entity.Offer;
 import com.ttsw.task.exception.category.BadIdCategoryException;
-import com.ttsw.task.exception.category.BadNameCategoryException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
 import com.ttsw.task.exception.user.BadUsernameException;
+import com.ttsw.task.mapper.offer.OfferMapper;
+import com.ttsw.task.repository.OfferRepository;
 import com.ttsw.task.service.OfferService;
 import lombok.RequiredArgsConstructor;
+import net.kaczmarzyk.spring.data.jpa.domain.Equal;
+import net.kaczmarzyk.spring.data.jpa.domain.Like;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Join;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -21,6 +31,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OfferController {
     private final OfferService offerService;
+    private final OfferRepository offerRepository;
+    private final OfferMapper offerMapper;
 
     @PostMapping("/create")
     public OfferDTO create(@RequestBody CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
@@ -72,18 +84,30 @@ public class OfferController {
         return offerService.reserved(id, principal);
     }
 
-    @GetMapping("/paginationALlOffer")
-    public List<OfferDTO> getPaginationOffers(@RequestParam int page, int size) {
-        return offerService.getPaginationOffers(page, size);
+    @GetMapping(value = "searchTitle", params = {"title", "category", "page", "size", "username"})
+    public Page<OfferDTO> searchTitle(
+            @Join(path = "category", alias = "c")
+            @Join(path = "owner", alias = "o")
+            @And({
+                    @Spec(path = "c.name", params = "category", spec = Like.class),
+                    @Spec(path = "title", params = "title", spec = Like.class),
+                    @Spec(path = "o.username", params = "username", spec = Like.class),
+                    @Spec(path = "stateOffer", spec = Equal.class, defaultVal = "ACTIVE")
+            })
+                    Specification<Offer> spec, Pageable pageable) {
+        return offerService.searchTitle(spec, pageable);
     }
 
-    @GetMapping("/getSizeActive")
-    public int getSizeActiveOffers(@RequestParam String category) throws BadNameCategoryException {
-        return offerService.sizeActiveOffer(category);
-    }
-
-    @GetMapping("/paginationOfferWhereCategory")
-    public List<OfferDTO> getPaginationOffersWhereCategory(@RequestParam int page, int sizePage, String category) throws BadNameCategoryException {
-        return offerService.getPaginationOffersWhereCategory(page, sizePage, category);
+    @GetMapping(value = "searchTitleAdmin", params = {"title", "category", "page", "size", "username"})
+    public Page<OfferDTO> searchTitleAdmin(
+            @Join(path = "category", alias = "c")
+            @Join(path = "owner", alias = "o")
+            @And({
+                    @Spec(path = "c.name", params = "category", spec = Like.class),
+                    @Spec(path = "title", params = "title", spec = Like.class),
+                    @Spec(path = "o.username", params = "username", spec = Like.class)
+            })
+                    Specification<Offer> spec, Pageable pageable) {
+        return offerService.searchTitleAdmin(spec, pageable);
     }
 }

@@ -19,6 +19,7 @@ public interface OfferMapper {
 
     List<OfferDTO> mapToOffersDTO(List<Offer> offers);
 
+    Iterable<OfferDTO> mapToOfferIterable(Iterable<Offer> offers);
 
     @Mapping(ignore = true, source = "category", target = "category")
     Offer mapOfferDTOtoOffer(OfferDTO offerDTO);
