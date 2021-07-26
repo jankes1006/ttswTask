@@ -1,13 +1,16 @@
 package com.ttsw.task.service;
 
+import com.ttsw.task.domain.image.ImageAndOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Category;
+import com.ttsw.task.entity.Image;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.enumVariable.offer.StateOffer;
 import com.ttsw.task.exception.category.BadIdCategoryException;
 import com.ttsw.task.exception.category.BadNameCategoryException;
+import com.ttsw.task.exception.image.BadIdImageException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
@@ -15,6 +18,7 @@ import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.offer.OfferMapper;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.CategoryRepository;
+import com.ttsw.task.repository.ImageRepository;
 import com.ttsw.task.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,18 +39,19 @@ public class OfferService {
     private final OfferRepository offerRepository;
     private final AppUserRepository appUserRepository;
     private final CategoryRepository categoryRepository;
+    private final ImageRepository imageRepository;
     private final OfferMapper offerMapper;
     private final EmailService emailService;
 
     public OfferDTO create(CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         AppUser owner = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
         Category category = categoryRepository.findById(createOfferDTO.getCategory()).orElseThrow(BadIdCategoryException::new);
+
         Offer offer = offerMapper.mapToOffer(createOfferDTO);
-        owner.getUserOffers().add(offer);
-        category.getOffers().add(offer);
         offer.setOwner(owner);
         offer.setCategory(category);
         offer.setStateOffer(StateOffer.ACTIVE);
+        offer.setCreateDate(LocalDateTime.now());
         return offerMapper.mapToOfferDTO(offerRepository.save(offer));
     }
 
@@ -59,6 +67,21 @@ public class OfferService {
 
         offerEdited.setStateOffer(offerOriginal.getStateOffer());
         offerEdited.setOwner(appUser);
+
+        return offerMapper.mapToOfferDTO(offerRepository.save(offerEdited));
+    }
+
+
+    public OfferDTO updateImage(ImageAndOfferDTO imageAndOfferDTO, Principal principal) throws BadUsernameException, BadEditOfferException, BadIdOfferException, BadIdImageException {
+        Offer offerEdited = offerRepository.findById(imageAndOfferDTO.getIdOffer()).orElseThrow(BadIdOfferException::new);
+        AppUser appUser = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
+
+        if (!appUser.getUsername().equals(offerEdited.getOwner().getUsername())) {
+            throw new BadEditOfferException();
+        }
+
+        Image image = imageRepository.findById(imageAndOfferDTO.getIdImage()).orElseThrow(BadIdImageException::new);
+        offerEdited.setImage(image);
 
         return offerMapper.mapToOfferDTO(offerRepository.save(offerEdited));
     }
@@ -95,17 +118,6 @@ public class OfferService {
                         .filter(s -> s.getStateOffer().equals(StateOffer.ACTIVE))
                         .collect(Collectors.toList())
         );
-    }
-
-    public int sizeActiveOffer(String category) throws BadNameCategoryException {
-        if (category.equals("all")) {
-            return getAll().size();
-        } else {
-            Category helperCategory = categoryRepository.findByName(category).orElseThrow(BadNameCategoryException::new);
-            List<Offer> offers = helperCategory.getOffers();
-            return (int) offers.stream().filter(offer -> offer.getStateOffer().equals(StateOffer.ACTIVE)).count();
-        }
-
     }
 
     public OfferDTO getById(Long id) throws BadIdOfferException {

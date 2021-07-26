@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,4 +19,6 @@ public class OfferDTO {
     private StateOffer stateOffer;
     private String ownerName;
     private String category;
+    private LocalDateTime createDate;
+    private Long image;
 }

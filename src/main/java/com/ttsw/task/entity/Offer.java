@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -20,6 +23,7 @@ public class Offer {
     private String description;
     private BigDecimal price;
     private StateOffer stateOffer;
+    private LocalDateTime createDate;
 
     @ManyToOne
     @JoinColumn(name = "OWNER_ID")
@@ -28,4 +32,7 @@ public class Offer {
     @ManyToOne
     @JoinColumn(name = "CATEGORY")
     private Category category;
+
+    @OneToOne
+    private Image image;
 }

@@ -1,10 +1,12 @@
 package com.ttsw.task.controller;
 
+import com.ttsw.task.domain.image.ImageAndOfferDTO;
 import com.ttsw.task.domain.offer.BanOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.exception.category.BadIdCategoryException;
+import com.ttsw.task.exception.image.BadIdImageException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
@@ -22,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -34,14 +37,19 @@ public class OfferController {
     private final OfferRepository offerRepository;
     private final OfferMapper offerMapper;
 
-    @PostMapping("/create")
+    @PostMapping()
     public OfferDTO create(@RequestBody CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         return offerService.create(createOfferDTO, principal);
     }
 
-    @PutMapping("/update")
+    @PutMapping()
     public OfferDTO update(@RequestBody OfferDTO offerDTO, Principal principal) throws BadUsernameException, BadEditOfferException {
         return offerService.update(offerDTO, principal);
+    }
+
+    @PutMapping("/setImage")
+    public OfferDTO updateImage(@RequestBody ImageAndOfferDTO imageAndOfferDTO, Principal principal) throws BadUsernameException, BadEditOfferException, BadIdOfferException, BadIdImageException {
+        return offerService.updateImage(imageAndOfferDTO, principal);
     }
 
     @PutMapping("/changeActivityUser")
@@ -54,16 +62,6 @@ public class OfferController {
         return offerService.getAllUser(principal);
     }
 
-    @GetMapping("/getAll")
-    public List<OfferDTO> getAll() {
-        return offerService.getAll();
-    }
-
-    @GetMapping("/getAllAdmin")
-    public List<OfferDTO> getAllAdmin() {
-        return offerService.getAllAdmin();
-    }
-
     @PutMapping("/setBan")
     public OfferDTO setBanOnOffer(@RequestBody BanOfferDTO banOfferDTO, Principal principal) throws BadIdOfferException, BadUsernameException {
         return offerService.setBanOnOffer(banOfferDTO.getId(), banOfferDTO.getReason(), principal);
@@ -74,7 +72,7 @@ public class OfferController {
         return offerService.takeOffBan(banOfferDTO.getId());
     }
 
-    @GetMapping("/getById")
+    @GetMapping()
     public OfferDTO getById(@RequestParam Long id) throws BadIdOfferException {
         return offerService.getById(id);
     }

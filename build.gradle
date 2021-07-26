@@ -37,6 +37,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/net.kaczmarzyk/specification-arg-resolver
     implementation group: 'net.kaczmarzyk', name: 'specification-arg-resolver', version: '2.6.2'
+
+    // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 }
 
 test {

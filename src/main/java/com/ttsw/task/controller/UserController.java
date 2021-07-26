@@ -28,12 +28,12 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public CreateAccountResult create(@RequestBody AppUserRegisterDTO appUserRegisterDTO) {
         return userService.createAccount(appUserRegisterDTO);
     }
 
-    @GetMapping("/login")
+    @GetMapping()
     public AppUserToSendDTO login(@RequestParam String username, String password) throws BadLoginProcess {
         return userService.login(username, password);
     }
@@ -53,7 +53,7 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PutMapping("/update")
+    @PutMapping()
     public AppUserToSendDTO update(@RequestBody AppUserUpdateUserDTO appUserUpdateUserDTO, Principal principal) throws BadUsernameException {
         return userService.update(appUserUpdateUserDTO.getNewValue(), appUserUpdateUserDTO.getModifyFields(), principal);
     }
@@ -63,7 +63,7 @@ public class UserController {
         return userService.update(appUserUpdateAdminDTO);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public void delete(@RequestParam Long id) {
         userService.delete(id);
     }
