@@ -1,9 +1,6 @@
 package com.ttsw.task.controller;
 
-import com.ttsw.task.domain.user.AppUserRegisterDTO;
-import com.ttsw.task.domain.user.AppUserToSendDTO;
-import com.ttsw.task.domain.user.AppUserUpdateAdminDTO;
-import com.ttsw.task.domain.user.AppUserUpdateUserDTO;
+import com.ttsw.task.domain.user.*;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.enumVariable.user.CreateAccountResult;
 import com.ttsw.task.exception.user.BadIdUserException;
@@ -28,16 +25,20 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping()
+    @PostMapping("/create") //nalozone aby moc sciagnac blokade
     public CreateAccountResult create(@RequestBody AppUserRegisterDTO appUserRegisterDTO) {
         return userService.createAccount(appUserRegisterDTO);
     }
 
-    @GetMapping()
-    public AppUserToSendDTO login(@RequestParam String username, String password) throws BadLoginProcess {
+    @GetMapping
+    public AppUserToSendDTO login(String username, String password) throws BadLoginProcess {
         return userService.login(username, password);
     }
 
+    @GetMapping("/login")
+    public TokenDTO loginToken(String username, String password) throws BadLoginProcess {
+        return userService.loginToken(username,password);
+    }
     @GetMapping("/getByEmail")
     public List<AppUserToSendDTO> getByEmail(@RequestParam String email) {
         return userService.getByEmail(email);
@@ -53,7 +54,7 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PutMapping()
+    @PutMapping
     public AppUserToSendDTO update(@RequestBody AppUserUpdateUserDTO appUserUpdateUserDTO, Principal principal) throws BadUsernameException {
         return userService.update(appUserUpdateUserDTO.getNewValue(), appUserUpdateUserDTO.getModifyFields(), principal);
     }
@@ -63,7 +64,7 @@ public class UserController {
         return userService.update(appUserUpdateAdminDTO);
     }
 
-    @DeleteMapping()
+    @DeleteMapping
     public void delete(@RequestParam Long id) {
         userService.delete(id);
     }
@@ -73,7 +74,7 @@ public class UserController {
         userService.verifyToken(tokenValue);
     }
 
-    @GetMapping(value = "/getPageable", params = {"page", "size", "username", "email", "role"})
+    @GetMapping(value = "/getPageable")
     public Page<AppUserToSendDTO> getPageableUsers(
             @And({
                     @Spec(path = "username", params = "username", spec = Like.class),

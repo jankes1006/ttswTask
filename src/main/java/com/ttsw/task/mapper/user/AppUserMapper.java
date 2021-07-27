@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AppUserMapper {
 
-    @Mapping(target = "role", defaultValue = "ROLE_USER")
+    @Mapping(target = "role", defaultValue = "ROLE_UNCONFIRMED")
     @Mapping(target = "enabled", defaultValue = "false")
     AppUser mapToAppUser(AppUserRegisterDTO appUserRegisterDTO);
 

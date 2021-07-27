@@ -21,12 +21,12 @@ import java.security.Principal;
 public class ImageController {
     final ImageService imageService;
 
-    @PostMapping()
+    @PostMapping
     public ImageDTO create(@RequestParam("imageFile") MultipartFile multipartFile) throws IOException {
         return imageService.uploadImage(multipartFile);
     }
 
-    @GetMapping()
+    @GetMapping
     public Image getImageById(Long id) throws BadIdImageException {
         return imageService.getImageById(id);
     }
