@@ -29,12 +29,17 @@ public class LogController {
     }
 
     @GetMapping("/getNumbersNoticifation")
-    public HashMap<Long,Long> isUserNotificationOffer(){
+    public HashMap<Long, Long> isUserNotificationOffer() {
         return logService.getNumbersNotification();
     }
 
     @GetMapping("/numberOfNotificationOfferId")
-    public int numberOfNotificationOfferId(Long id){
+    public int numberOfNotificationOfferId(Long id) {
         return logService.numberOfNotificationOfferId(id);
+    }
+
+    @GetMapping("/numberOfVisitedOffer")
+    public int numberOfVisitedOffer(Long id) {
+        return logService.numberOfVisitedOffer(id);
     }
 }

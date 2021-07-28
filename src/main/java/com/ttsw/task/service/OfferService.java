@@ -19,6 +19,7 @@ import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.CategoryRepository;
 import com.ttsw.task.repository.ImageRepository;
 import com.ttsw.task.repository.OfferRepository;
+import com.ttsw.task.service.log.LogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class OfferService {
     private final ImageRepository imageRepository;
     private final OfferMapper offerMapper;
     private final EmailService emailService;
+    private final LogService logService;
 
     public OfferDTO create(CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         AppUser owner = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
@@ -107,8 +109,10 @@ public class OfferService {
         return offerMapper.mapToOffersDTO(appUser.getUserOffers());
     }
 
-    public OfferDTO getById(Long id) throws BadIdOfferException {
-        return offerMapper.mapToOfferDTO(offerRepository.findById(id).orElseThrow(BadIdOfferException::new));
+    public OfferDTO getById(Long id, Principal principal) throws BadIdOfferException, BadUsernameException {
+        Offer offer = offerRepository.findById(id).orElseThrow(BadIdOfferException::new);
+        logService.addVisited(offer,principal);
+        return offerMapper.mapToOfferDTO(offer);
     }
 
     public Boolean reserved(Long id, Principal principal) throws BadIdOfferException, BadUsernameException, BadReservedException {

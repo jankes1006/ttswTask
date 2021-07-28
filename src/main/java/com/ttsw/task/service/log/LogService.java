@@ -3,12 +3,14 @@ package com.ttsw.task.service.log;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.entity.log.LogNotificationOffer;
+import com.ttsw.task.entity.log.LogVisitedOffer;
 import com.ttsw.task.exception.log.BadNotificationOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.OfferRepository;
 import com.ttsw.task.repository.log.LogNotificationOfferRepository;
+import com.ttsw.task.repository.log.LogVisitedOfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LogService {
     private final LogNotificationOfferRepository logNotificationOfferRepository;
+    private final LogVisitedOfferRepository logVisitedOfferRepository;
     private final AppUserRepository appUserRepository;
     private final OfferRepository offerRepository;
 
@@ -61,5 +64,19 @@ public class LogService {
     public int numberOfNotificationOfferId(Long id) {
         List<LogNotificationOffer> logNotificationOffers = logNotificationOfferRepository.findByOfferId(id);
         return logNotificationOffers.size();
+    }
+
+    public void addVisited(Offer offer, Principal principal) throws BadUsernameException {
+        AppUser appUser = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
+
+        if (!appUser.getUsername().equals(offer.getOwner().getUsername())) {
+            LogVisitedOffer logVisitedOffer = new LogVisitedOffer(appUser, offer);
+            logVisitedOfferRepository.save(logVisitedOffer);
+        }
+    }
+
+    public int numberOfVisitedOffer(Long id) {
+        List<LogVisitedOffer> logVisitedOffers = logVisitedOfferRepository.findByOfferId(id);
+        return logVisitedOffers.size();
     }
 }

@@ -68,8 +68,8 @@ public class OfferController {
     }
 
     @GetMapping
-    public OfferDTO getById(@RequestParam Long id) throws BadIdOfferException {
-        return offerService.getById(id);
+    public OfferDTO getById(@RequestParam Long id, Principal principal) throws BadIdOfferException, BadUsernameException {
+        return offerService.getById(id, principal);
     }
 
     @GetMapping("/reserved")
