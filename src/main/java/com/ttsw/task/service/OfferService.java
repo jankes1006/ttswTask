@@ -9,7 +9,6 @@ import com.ttsw.task.entity.Image;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.enumVariable.offer.StateOffer;
 import com.ttsw.task.exception.category.BadIdCategoryException;
-import com.ttsw.task.exception.category.BadNameCategoryException;
 import com.ttsw.task.exception.image.BadIdImageException;
 import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
@@ -27,11 +26,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -111,15 +107,6 @@ public class OfferService {
         return offerMapper.mapToOffersDTO(appUser.getUserOffers());
     }
 
-    public List<OfferDTO> getAll() {
-        List<Offer> offers = (List<Offer>) offerRepository.findAll();
-        return offerMapper.mapToOffersDTO(
-                offers.stream()
-                        .filter(s -> s.getStateOffer().equals(StateOffer.ACTIVE))
-                        .collect(Collectors.toList())
-        );
-    }
-
     public OfferDTO getById(Long id) throws BadIdOfferException {
         return offerMapper.mapToOfferDTO(offerRepository.findById(id).orElseThrow(BadIdOfferException::new));
     }
@@ -141,11 +128,6 @@ public class OfferService {
             return true;
         }
         return false;
-    }
-
-    public List<OfferDTO> getAllAdmin() {
-        List<Offer> offers = (List<Offer>) offerRepository.findAll();
-        return offerMapper.mapToOffersDTO(offers);
     }
 
     public OfferDTO setBanOnOffer(Long id, String reason, Principal principal) throws BadIdOfferException, BadUsernameException {
