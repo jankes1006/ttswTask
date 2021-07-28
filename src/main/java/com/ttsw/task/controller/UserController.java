@@ -3,6 +3,7 @@ package com.ttsw.task.controller;
 import com.ttsw.task.domain.user.*;
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.enumVariable.user.CreateAccountResult;
+import com.ttsw.task.enumVariable.user.PasswordResetResult;
 import com.ttsw.task.exception.user.BadIdUserException;
 import com.ttsw.task.exception.user.BadLoginProcess;
 import com.ttsw.task.exception.user.BadUsernameException;
@@ -37,8 +38,9 @@ public class UserController {
 
     @GetMapping("/login")
     public TokenDTO loginToken(String username, String password) throws BadLoginProcess {
-        return userService.loginToken(username,password);
+        return userService.loginToken(username, password);
     }
+
     @GetMapping("/getByEmail")
     public List<AppUserToSendDTO> getByEmail(@RequestParam String email) {
         return userService.getByEmail(email);
@@ -87,5 +89,20 @@ public class UserController {
     @GetMapping("/getAll")
     public List<AppUserToSendDTO> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/resetPassword")
+    public PasswordResetResult resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        return userService.resetPassword(resetPasswordDTO);
+    }
+
+    @GetMapping("/getByToken")
+    public AppUserToSendDTO getAppUserByToken(String token) {
+        return userService.getAppUserByToken(token);
+    }
+
+    @PutMapping("/setNewPassword")
+    public void setNewPassword(@RequestBody TokenPassword tokenPassword) {
+        userService.setNewPassword(tokenPassword);
     }
 }

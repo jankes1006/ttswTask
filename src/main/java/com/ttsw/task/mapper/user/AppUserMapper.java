@@ -1,8 +1,8 @@
 package com.ttsw.task.mapper.user;
 
-import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.domain.user.AppUserRegisterDTO;
 import com.ttsw.task.domain.user.AppUserToSendDTO;
+import com.ttsw.task.entity.AppUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

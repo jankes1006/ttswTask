@@ -1,21 +1,17 @@
 package com.ttsw.task.service;
 
-import com.ttsw.task.domain.user.AppUserRegisterDTO;
-import com.ttsw.task.domain.user.AppUserToSendDTO;
-import com.ttsw.task.domain.user.AppUserUpdateAdminDTO;
-import com.ttsw.task.domain.user.TokenDTO;
+import com.ttsw.task.domain.user.*;
 import com.ttsw.task.entity.AppUser;
-import com.ttsw.task.entity.Offer;
 import com.ttsw.task.entity.Token;
 import com.ttsw.task.enumVariable.offer.StateOffer;
 import com.ttsw.task.enumVariable.user.CreateAccountResult;
 import com.ttsw.task.enumVariable.user.ModifyFields;
+import com.ttsw.task.enumVariable.user.PasswordResetResult;
 import com.ttsw.task.exception.user.BadIdUserException;
 import com.ttsw.task.exception.user.BadLoginProcess;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.user.AppUserMapper;
 import com.ttsw.task.repository.AppUserRepository;
-import com.ttsw.task.repository.OfferRepository;
 import com.ttsw.task.repository.TokenRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
 public class UserService {
     private final AppUserRepository appUserRepository;
-    private final OfferRepository offerRepository;
     private final TokenRepository tokenRepository;
     private final AppUserMapper appUserMapper;
     private final PasswordEncoder passwordEncoder;
@@ -53,16 +49,16 @@ public class UserService {
     public TokenDTO loginToken(String username, String password) throws BadLoginProcess {
         AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(BadLoginProcess::new);
         if (passwordEncoder.matches(password, appUser.getPassword())) {
-            long l=System.currentTimeMillis();
-            String token= Jwts.builder()
+            long l = System.currentTimeMillis();
+            String token = Jwts.builder()
                     .setSubject(appUser.getUsername())//odnosi sie do uzytkownika
-                    .claim("role",appUser.getRole())//umieszczasz tu elementy klucz wartosc
-                    .claim("name",appUser.getUsername())
-                    .claim("password",appUser.getPassword())
+                    .claim("role", appUser.getRole())//umieszczasz tu elementy klucz wartosc
+                    .claim("name", appUser.getUsername())
+                    .claim("password", appUser.getPassword())
                     .setIssuedAt(new Date(l))
                     //.setExpiration(new Date(l+2000000)) //token bedzie wazny 20 s
                     .signWith(SignatureAlgorithm.HS512, "key".getBytes()).compact();
-            return new TokenDTO(token,appUser.getUsername(),appUser.getRole());
+            return new TokenDTO(token, appUser.getUsername(), appUser.getRole());
         } else {
             throw new BadLoginProcess();
         }
@@ -137,13 +133,46 @@ public class UserService {
     public AppUserToSendDTO update(AppUserUpdateAdminDTO appUserUpdateAdminDTO) throws BadIdUserException {
         AppUser appUser = appUserRepository.findById(appUserUpdateAdminDTO.getId()).orElseThrow(BadIdUserException::new);
         appUser.setRole(appUserUpdateAdminDTO.getRole());
-        if(appUser.getRole().equals("ROLE_BAN")) {
-            appUser.getUserOffers().forEach(offer-> offer.setStateOffer(StateOffer.BANNED));
+        if (appUser.getRole().equals("ROLE_BAN")) {
+            appUser.getUserOffers().forEach(offer -> offer.setStateOffer(StateOffer.BANNED));
         }
         return appUserMapper.mapToAppUserToSendDTO(appUserRepository.save(appUser));
     }
 
     public Page<AppUserToSendDTO> searchUser(Specification<AppUser> spec, Pageable pageable) {
         return appUserRepository.findAll(spec, pageable).map(appUserMapper::mapToAppUserToSendDTO);
+    }
+
+    public PasswordResetResult resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        Optional<AppUser> appUserOptional = appUserRepository.findByUsername(resetPasswordDTO.getUsername());
+        if (!appUserOptional.isPresent()) return PasswordResetResult.NO_RESET;
+
+        AppUser appUser = appUserOptional.get();
+
+        if (!appUser.getEmail().equals(resetPasswordDTO.getEmail())) return PasswordResetResult.NO_RESET;
+        if (appUser.getRole().equals("ROLE_UNCONFIRMED")) return PasswordResetResult.UNCONFIRMED_USER;
+
+        Optional<Token> altToken = tokenRepository.findByAppUser(appUser);
+
+        Token token = altToken.orElseGet(() -> new Token(appUser));
+
+        tokenRepository.save(token);
+        emailService.sendEmailResetPassword(appUser, token);
+
+        return PasswordResetResult.RESET;
+    }
+
+    public AppUserToSendDTO getAppUserByToken(String token) {
+        AppUser appUser = tokenRepository.findByValue(token).getAppUser();
+
+        return appUserMapper.mapToAppUserToSendDTO(appUser);
+    }
+
+    public void setNewPassword(TokenPassword tokenPassword) {
+        Token token = tokenRepository.findByValue(tokenPassword.getToken());
+        AppUser appUser = token.getAppUser();
+        appUser.setPassword(passwordEncoder.encode(tokenPassword.getNewPassword()));
+
+        tokenRepository.delete(token);
     }
 }

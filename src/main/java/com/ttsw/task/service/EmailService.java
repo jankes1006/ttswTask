@@ -80,4 +80,11 @@ public class EmailService {
                         "\n Właśnie odblokowano Twoją ofertę o nazwie \"" + offer.getTitle() + "\"");
         sendMail(mail);
     }
+
+    public void sendEmailResetPassword(AppUser appUser, Token token) {
+        Mail mail = new Mail(appUser.getEmail(), "Zmiana hasła",
+                "Cześć " + appUser.getUsername() + "!" +
+                        "\n Aby zresetować hasło przejdź pod następujący adres: http://localhost:4200/setPassword/" + token.getValue());
+        sendMail(mail);
+    }
 }
