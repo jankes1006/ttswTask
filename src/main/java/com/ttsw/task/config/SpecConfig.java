@@ -11,7 +11,7 @@ import java.util.List;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration
-public class MyConfig implements WebMvcConfigurer {
+public class SpecConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new SpecificationArgumentResolver());

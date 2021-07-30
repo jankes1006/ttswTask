@@ -13,6 +13,7 @@ import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.mapper.user.AppUserMapper;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.TokenRepository;
+import com.ttsw.task.service.log.LogService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class UserService {
     private final AppUserMapper appUserMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final LogService logService;
 
     public AppUserToSendDTO login(String username, String password) throws BadLoginProcess {
         AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(BadLoginProcess::new);
@@ -49,6 +51,9 @@ public class UserService {
     public TokenDTO loginToken(String username, String password) throws BadLoginProcess {
         AppUser appUser = appUserRepository.findByUsername(username).orElseThrow(BadLoginProcess::new);
         if (passwordEncoder.matches(password, appUser.getPassword())) {
+            if (appUser.getRole().equals("ROLE_USER") || appUser.getRole().equals("ROLE_ADMIN")) {
+                logService.addLogin(appUser);
+            }
             long l = System.currentTimeMillis();
             String token = Jwts.builder()
                     .setSubject(appUser.getUsername())//odnosi sie do uzytkownika

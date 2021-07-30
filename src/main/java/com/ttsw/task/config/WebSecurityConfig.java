@@ -21,34 +21,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userDetailsService);
-//    }
-//
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.cors();
-//        http.csrf().disable();
-//
-//        http.authorizeRequests()
-//                .antMatchers("/user/create").permitAll()
-//                .antMatchers("/user/login").permitAll()
-//                .antMatchers("/user/getByEmail").fullyAuthenticated()
-//                .antMatchers("/user/getByEmail").fullyAuthenticated()
-//                .antMatchers("/user/getByUsername").fullyAuthenticated()
-//                .antMatchers("/user/getById").fullyAuthenticated()
-//                .antMatchers("/user/update").fullyAuthenticated()
-//                .antMatchers("/user/updateAdmin").hasRole("ADMIN")
-//                .antMatchers("/user/delete").hasRole("ADMIN")
-//                .antMatchers("/user/verifyAccount").permitAll()
-//                .antMatchers("user/getAll").fullyAuthenticated()
-//                .antMatchers("user/getPageable").permitAll()
-//                //.antMatchers("/offer/*").fullyAuthenticated()
-//                .and()
-//                .httpBasic();
-//    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

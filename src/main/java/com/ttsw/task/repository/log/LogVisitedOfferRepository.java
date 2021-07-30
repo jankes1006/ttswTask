@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface LogVisitedOfferRepository extends JpaRepository<LogVisitedOffer, Long> {
     List<LogVisitedOffer> findByOfferId(Long id);
+    Long countByOfferId(Long id);
 }

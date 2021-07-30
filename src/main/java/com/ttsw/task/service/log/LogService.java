@@ -2,6 +2,7 @@ package com.ttsw.task.service.log;
 
 import com.ttsw.task.entity.AppUser;
 import com.ttsw.task.entity.Offer;
+import com.ttsw.task.entity.log.LogLoginToService;
 import com.ttsw.task.entity.log.LogNotificationOffer;
 import com.ttsw.task.entity.log.LogVisitedOffer;
 import com.ttsw.task.exception.log.BadNotificationOfferException;
@@ -9,6 +10,7 @@ import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.user.BadUsernameException;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.OfferRepository;
+import com.ttsw.task.repository.log.LogLoginToServiceRepository;
 import com.ttsw.task.repository.log.LogNotificationOfferRepository;
 import com.ttsw.task.repository.log.LogVisitedOfferRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.List;
 public class LogService {
     private final LogNotificationOfferRepository logNotificationOfferRepository;
     private final LogVisitedOfferRepository logVisitedOfferRepository;
+    private final LogLoginToServiceRepository logLoginToServiceRepository;
     private final AppUserRepository appUserRepository;
     private final OfferRepository offerRepository;
 
@@ -57,7 +60,7 @@ public class LogService {
                 notificationMap.replace(e.getOffer().getId(), notificationMap.get(e.getOffer().getId()) + 1);
             }
         });
-
+        
         return notificationMap;
     }
 
@@ -78,5 +81,10 @@ public class LogService {
     public int numberOfVisitedOffer(Long id) {
         List<LogVisitedOffer> logVisitedOffers = logVisitedOfferRepository.findByOfferId(id);
         return logVisitedOffers.size();
+    }
+
+    public void addLogin(AppUser appUser){
+        LogLoginToService logLoginToService = new LogLoginToService(appUser);
+        logLoginToServiceRepository.save(logLoginToService);
     }
 }
