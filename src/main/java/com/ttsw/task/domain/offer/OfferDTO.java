@@ -17,6 +17,7 @@ public class OfferDTO {
     private String description;
     private BigDecimal price;
     private StateOffer stateOffer;
+    private Long ownerId;
     private String ownerName;
     private String category;
     private LocalDateTime createDate;

@@ -21,13 +21,4 @@ public class Token {
         this.value = UUID.randomUUID().toString();
         this.appUser = appUser;
     }
-
-    @Override
-    public String toString() {
-        return "Token{" +
-                "id=" + id +
-                ", value='" + value + '\'' +
-                ", appUser=" + appUser +
-                '}';
-    }
 }

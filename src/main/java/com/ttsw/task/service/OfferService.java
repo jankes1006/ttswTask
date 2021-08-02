@@ -111,7 +111,7 @@ public class OfferService {
 
     public OfferDTO getById(Long id, Principal principal) throws BadIdOfferException, BadUsernameException {
         Offer offer = offerRepository.findById(id).orElseThrow(BadIdOfferException::new);
-        logService.addVisited(offer,principal);
+        logService.addVisited(offer, principal);
         return offerMapper.mapToOfferDTO(offer);
     }
 
@@ -125,8 +125,11 @@ public class OfferService {
             AppUser client = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
             AppUser seller = appUserRepository.findByUsername(offer.getOwner().getUsername()).orElseThrow(BadUsernameException::new);
 
+            logService.addReserved(client, offer);
+
             emailService.sendEmailToSellerBuy(client, seller, offer);
             emailService.sendEmailToClientBuy(client, seller, offer);
+
             offer.setStateOffer(StateOffer.NO_ACTIVE);
             offerRepository.save(offer);
             return true;

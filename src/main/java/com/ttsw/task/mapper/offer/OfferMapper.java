@@ -14,6 +14,7 @@ public interface OfferMapper {
     Offer mapToOffer(CreateOfferDTO createOfferDTO);
 
     @Mapping(source = "owner.username", target = "ownerName")
+    @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "category.name", target = "category")
     @Mapping(source = "image.id", target = "image")
     OfferDTO mapToOfferDTO(Offer offer);
