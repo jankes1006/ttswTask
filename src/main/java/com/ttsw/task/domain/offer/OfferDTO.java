@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +22,6 @@ public class OfferDTO {
     private String ownerName;
     private String category;
     private LocalDateTime createDate;
-    private Long image;
+    private List<Long> images;
+//    private int notification;
 }

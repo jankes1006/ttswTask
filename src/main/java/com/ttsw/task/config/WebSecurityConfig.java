@@ -38,5 +38,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers("/user/resetPassword");
         web.ignoring().antMatchers("/user/getByToken");
         web.ignoring().antMatchers("/user/setNewPassword");
+        web.ignoring().antMatchers("/offer/getImages");
     }
 }

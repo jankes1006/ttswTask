@@ -1,9 +1,11 @@
 package com.ttsw.task.controller;
 
 import com.ttsw.task.domain.image.ImageAndOfferDTO;
+import com.ttsw.task.domain.image.ImageDTO;
 import com.ttsw.task.domain.offer.BanOfferDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
+import com.ttsw.task.entity.Image;
 import com.ttsw.task.entity.Offer;
 import com.ttsw.task.exception.category.BadIdCategoryException;
 import com.ttsw.task.exception.image.BadIdImageException;
@@ -98,5 +100,10 @@ public class OfferController {
             })
                     Specification<Offer> spec, Pageable pageable) {
         return offerService.searchTitleAdmin(spec, pageable);
+    }
+
+    @GetMapping("/getImages")
+    public List<ImageDTO> getAllOfferImages(Long id) throws BadIdOfferException {
+        return offerService.getALlOfferImages(id);
     }
 }

@@ -28,10 +28,8 @@ public class AppUser implements UserDetails {
     private boolean isEnabled;
 
     @OneToMany(
-            targetEntity = Offer.class,//zbedne
             mappedBy = "owner",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY //domyslen zbedne
+            cascade = CascadeType.ALL
     )
     private List<Offer> userOffers = new ArrayList<>();
 

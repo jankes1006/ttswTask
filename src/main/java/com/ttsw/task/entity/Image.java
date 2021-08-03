@@ -18,6 +18,9 @@ public class Image {
     private String type;
     @Column(length = 1024)
     private byte[] picByte;
+    @ManyToOne
+    @JoinColumn(name="OFFER")
+    private Offer offer;
 
     public Image(String name, String type, byte[] picByte) {
         this.name = name;

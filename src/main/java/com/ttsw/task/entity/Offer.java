@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -33,6 +32,12 @@ public class Offer {
     @JoinColumn(name = "CATEGORY")
     private Category category;
 
-    @OneToOne
-    private Image image;
+    @OneToMany(
+            mappedBy = "offer",
+            cascade = CascadeType.ALL
+    )
+    private List<Image> images;
+
+//    @Formula(value="(SELECT count(*) FROM LogNotificationOffer lno WHERE lno.offer = this..")
+//    private int notification;
 }

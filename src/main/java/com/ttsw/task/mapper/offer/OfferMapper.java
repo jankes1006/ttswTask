@@ -16,7 +16,7 @@ public interface OfferMapper {
     @Mapping(source = "owner.username", target = "ownerName")
     @Mapping(source = "owner.id", target = "ownerId")
     @Mapping(source = "category.name", target = "category")
-    @Mapping(source = "image.id", target = "image")
+    @Mapping(ignore=true, source = "images", target = "images")
     OfferDTO mapToOfferDTO(Offer offer);
 
     List<OfferDTO> mapToOffersDTO(List<Offer> offers);
@@ -24,6 +24,6 @@ public interface OfferMapper {
     Iterable<OfferDTO> mapToOfferIterable(Iterable<Offer> offers);
 
     @Mapping(ignore = true, source = "category", target = "category")
-    @Mapping(ignore = true, source = "image", target = "image")
+    @Mapping(ignore = true, source = "images", target = "images")
     Offer mapOfferDTOtoOffer(OfferDTO offerDTO);
 }

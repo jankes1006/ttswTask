@@ -1,6 +1,7 @@
 package com.ttsw.task.service;
 
 import com.ttsw.task.domain.image.ImageAndOfferDTO;
+import com.ttsw.task.domain.image.ImageDTO;
 import com.ttsw.task.domain.offer.CreateOfferDTO;
 import com.ttsw.task.domain.offer.OfferDTO;
 import com.ttsw.task.entity.AppUser;
@@ -14,6 +15,7 @@ import com.ttsw.task.exception.offer.BadEditOfferException;
 import com.ttsw.task.exception.offer.BadIdOfferException;
 import com.ttsw.task.exception.offer.BadReservedException;
 import com.ttsw.task.exception.user.BadUsernameException;
+import com.ttsw.task.mapper.image.ImageMapper;
 import com.ttsw.task.mapper.offer.OfferMapper;
 import com.ttsw.task.repository.AppUserRepository;
 import com.ttsw.task.repository.CategoryRepository;
@@ -40,6 +42,7 @@ public class OfferService {
     private final OfferMapper offerMapper;
     private final EmailService emailService;
     private final LogService logService;
+    private final ImageMapper imageMapper;
 
     public OfferDTO create(CreateOfferDTO createOfferDTO, Principal principal) throws BadUsernameException, BadIdCategoryException {
         AppUser owner = appUserRepository.findByUsername(principal.getName()).orElseThrow(BadUsernameException::new);
@@ -79,8 +82,9 @@ public class OfferService {
         }
 
         Image image = imageRepository.findById(imageAndOfferDTO.getIdImage()).orElseThrow(BadIdImageException::new);
-        offerEdited.setImage(image);
-
+        image.setOffer(offerEdited);
+        offerEdited.getImages().add(image);
+        imageRepository.save(image);
         return offerMapper.mapToOfferDTO(offerRepository.save(offerEdited));
     }
 
@@ -160,5 +164,11 @@ public class OfferService {
 
     public Page<OfferDTO> searchTitleAdmin(Specification<Offer> spec, Pageable pageable) {
         return offerRepository.findAll(spec, pageable).map(offerMapper::mapToOfferDTO);
+    }
+
+    public List<ImageDTO> getALlOfferImages(Long id) throws BadIdOfferException {
+        Offer offer = offerRepository.findById(id).orElseThrow(BadIdOfferException::new);
+        List<Image> imageList = offer.getImages();
+        return imageMapper.mapToImageListDTO(imageList);
     }
 }
