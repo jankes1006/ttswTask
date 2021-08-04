@@ -23,5 +23,6 @@ public class OfferDTO {
     private String category;
     private LocalDateTime createDate;
     private List<Long> images;
-//    private int notification;
+    private int notification;
+    private int visited;
 }

@@ -81,10 +81,11 @@ public class OfferService {
             throw new BadEditOfferException();
         }
 
-        Image image = imageRepository.findById(imageAndOfferDTO.getIdImage()).orElseThrow(BadIdImageException::new);
-        image.setOffer(offerEdited);
-        offerEdited.getImages().add(image);
-        imageRepository.save(image);
+        for (Long id : imageAndOfferDTO.getIdImage()) {
+            Image image = imageRepository.findById(id).orElseThrow(BadIdImageException::new);
+            image.setOffer(offerEdited);
+            imageRepository.save(image);
+        }
         return offerMapper.mapToOfferDTO(offerRepository.save(offerEdited));
     }
 

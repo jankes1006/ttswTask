@@ -4,6 +4,7 @@ import com.ttsw.task.enumVariable.offer.StateOffer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -38,6 +39,9 @@ public class Offer {
     )
     private List<Image> images;
 
-//    @Formula(value="(SELECT count(*) FROM LogNotificationOffer lno WHERE lno.offer = this..")
-//    private int notification;
+    @Formula(value="(SELECT count(*) FROM log_notification_offer log where log.offer_id=id)")
+    private int notification;
+
+    @Formula(value="(SELECT count(*) FROM log_visited_offer log where log.offer_id=id)")
+    private int visited;
 }

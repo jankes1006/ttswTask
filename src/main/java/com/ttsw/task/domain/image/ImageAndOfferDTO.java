@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class ImageAndOfferDTO {
     private Long idOffer;
-    private Long idImage;
+    private List<Long> idImage;
 }
